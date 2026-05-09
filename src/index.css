@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════
+   BETTERBOND IQ — DESIGN SYSTEM
+   Tailwind v4 theme + CSS custom properties
+═══════════════════════════════════════════════ */
+
+@theme {
+  --color-bb-navy:       #1A3670;
+  --color-bb-navy-dark:  #112550;
+  --color-bb-navy-mid:   #1E4080;
+  --color-bb-navy-light: #EEF2FA;
+  --color-bb-red:        #E5302A;
+  --color-bb-red-light:  #FDEEEE;
+  --color-bb-red-dark:   #C0261F;
+  --color-bb-off-white:  #F7F8FC;
+  --color-bb-grey-100:   #F0F2F8;
+  --color-bb-grey-200:   #D8DCE8;
+  --color-bb-grey-400:   #8E94A8;
+  --color-bb-grey-700:   #3D4460;
+  --color-bb-black:      #0D1226;
+  --color-bb-bronze:     #CD7F32;
+  --color-bb-silver:     #A8A9AD;
+  --color-bb-gold:       #D4AF37;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+}
+
+:root {
+  --bb-navy:        #1A3670;
+  --bb-navy-dark:   #112550;
+  --bb-navy-mid:    #1E4080;
+  --bb-navy-light:  #EEF2FA;
+  --bb-red:         #E5302A;
+  --bb-red-light:   #FDEEEE;
+  --bb-red-dark:    #C0261F;
+  --bb-white:       #FFFFFF;
+  --bb-off-white:   #F7F8FC;
+  --bb-grey-100:    #F0F2F8;
+  --bb-grey-200:    #D8DCE8;
+  --bb-grey-400:    #8E94A8;
+  --bb-grey-700:    #3D4460;
+  --bb-black:       #0D1226;
+  --bb-bronze:      #CD7F32;
+  --bb-silver:      #A8A9AD;
+  --bb-gold:        #D4AF37;
+  --bb-shadow-card:  0 2px 12px rgba(26,54,112,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  --bb-shadow-float: 0 8px 32px rgba(26,54,112,0.16), 0 2px 8px rgba(0,0,0,0.08);
+  --bb-shadow-nav:   0 -4px 20px rgba(26,54,112,0.08);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html { scroll-behavior: smooth; height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bb-navy-dark);
+  color: var(--bb-black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  height: 100dvh;
+}
+
+.scroll-hide::-webkit-scrollbar { display: none; }
+.scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes pointsPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-blink   { animation: blink 2s ease-in-out infinite; }
+.animate-points  { animation: pointsPop 0.4s ease-out; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bb-grey-100) 25%, var(--bb-grey-200) 50%, var(--bb-grey-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
