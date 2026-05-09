@@ -16,7 +16,7 @@ import { QuizScreen } from './screens/Learn/QuizScreen'
 import { RankScreen } from './screens/Rank/RankScreen'
 import { ProfileScreen } from './screens/Profile/ProfileScreen'
 
-const DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
+const DEMO = true
 
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuthStore()
