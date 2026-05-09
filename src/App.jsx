@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/useAuthStore'
 import { usePointsStore } from './store/usePointsStore'
+import { MOCK_SESSION, MOCK_USERS } from './lib/mockData'
 
 import { AppShell } from './components/layout/AppShell'
 import { LoginScreen } from './screens/Auth/LoginScreen'
@@ -15,8 +16,11 @@ import { QuizScreen } from './screens/Learn/QuizScreen'
 import { RankScreen } from './screens/Rank/RankScreen'
 import { ProfileScreen } from './screens/Profile/ProfileScreen'
 
+const DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
+
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuthStore()
+  if (DEMO) return children
   if (loading) return <div style={{ height: '100dvh', background: 'var(--bb-navy-dark)' }} />
   if (!session) return <Navigate to="/login" replace />
   return children
@@ -27,6 +31,16 @@ export default function App() {
   const { setPoints } = usePointsStore()
 
   useEffect(() => {
+    if (DEMO) {
+      const demoUser = MOCK_USERS[0]
+      setSession(MOCK_SESSION)
+      setUser(MOCK_SESSION.user)
+      setProfile(demoUser)
+      setPoints(demoUser.total_points ?? 0, demoUser.monthly_points ?? 0)
+      setLoading(false)
+      return
+    }
+
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         setSession(session)
@@ -48,15 +62,8 @@ export default function App() {
 
   async function loadProfile(userId) {
     try {
-      // Update streak — awards daily login pts, idempotent (safe on every reload)
       await supabase.rpc('update_login_streak', { p_user_id: userId })
-
-      const { data } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
+      const { data } = await supabase.from('users').select('*').eq('id', userId).single()
       if (data) {
         setProfile(data)
         setPoints(data.total_points ?? 0, data.monthly_points ?? 0)
@@ -71,8 +78,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/login/verify" element={<OTPScreen />} />
+        <Route path="/login" element={DEMO ? <Navigate to="/home" replace /> : <LoginScreen />} />
+        <Route path="/login/verify" element={DEMO ? <Navigate to="/home" replace /> : <OTPScreen />} />
 
         <Route path="/" element={
           <ProtectedRoute>
