@@ -13,10 +13,6 @@ export function ModuleDetail() {
   const [completed, setCompleted] = useState([])
   const [audience, setAudience] = useState('agent')
 
-  useEffect(() => {
-    loadModule()
-  }, [moduleId, profile?.id])
-
   async function loadModule() {
     const [modRes, lessonsRes, progressRes] = await Promise.all([
       supabase.from('modules').select('*').eq('id', moduleId).single(),
@@ -30,6 +26,13 @@ export function ModuleDetail() {
     if (lessonsRes.data) setLessons(lessonsRes.data)
     if (progressRes.data) setCompleted(progressRes.data.map(p => p.lesson_id))
   }
+
+  useEffect(() => {
+    // Existing module detail pattern: fetch module data when the route/user changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadModule()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleId, profile?.id])
 
   if (!module) return <LoadingState />
 

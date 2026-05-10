@@ -27,7 +27,7 @@ INSERT INTO modules (
   sort_order, is_active, points_completion,
   agent_benefits, buyer_benefits
 ) VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'The Consultant Mindset',
   'consultant-mindset',
   'Moving from transactional to relational thinking. The mindset shift that turns good consultants into trusted, referable partners.',
@@ -55,8 +55,8 @@ INSERT INTO lessons (
   content_agent, content_buyer,
   key_points, sort_order, points_value
 ) VALUES (
-  'les-00000001-0000-0000-0000-000000000001',
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8001-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'Thinking Beyond the Bond',
 
   'For many years, bond consultants built their role around rates, paperwork, and process. That was enough. The market has shifted — and so have the expectations of the practitioners and buyers you serve.
@@ -95,8 +95,8 @@ INSERT INTO lessons (
   content_agent, content_buyer,
   key_points, sort_order, points_value
 ) VALUES (
-  'les-00000001-0000-0000-0000-000000000002',
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8001-000000000002',
+  '00000000-0000-4000-8000-000000000001',
   'The 3 Identities of a High-Trust Consultant',
 
   'Trust is not built through forms and finance alone. It grows through clear communication, steady presence, and a genuine understanding of what both the buyer and practitioner need most.
@@ -138,8 +138,8 @@ INSERT INTO lessons (
   content_agent, content_buyer,
   key_points, sort_order, points_value
 ) VALUES (
-  'les-00000001-0000-0000-0000-000000000003',
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8001-000000000003',
+  '00000000-0000-4000-8000-000000000001',
   'Habits That Make You Referable',
 
   'Being good at your job is the entry ticket. Being remembered, recommended, and referred is what builds a business. The consultants who become trusted, go-to names are not just technically strong — they are intentional about how they think, how they show up, and how they make people feel.
@@ -188,8 +188,8 @@ INSERT INTO lessons (
   content_agent, content_buyer,
   key_points, sort_order, points_value
 ) VALUES (
-  'les-00000001-0000-0000-0000-000000000004',
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8001-000000000004',
+  '00000000-0000-4000-8000-000000000001',
   '7 Attributes of a Top Consultant',
 
   '"The best consultants are not just technically strong. They are intentional about how they show up." — Shawn Mackrell
@@ -244,7 +244,7 @@ A consultant who scores highly across all seven will be someone you refer withou
 
 INSERT INTO quiz_questions (module_id, question, options, correct_option_id, explanation, sort_order)
 VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'What is the core mindset shift that separates top BetterBond consultants from average ones?',
   '[{"id":"a","text":"Focusing on getting the lowest possible interest rate"},{"id":"b","text":"Processing applications faster than competitors"},{"id":"c","text":"Moving from transactional thinking to relationship-first thinking"},{"id":"d","text":"Specialising in first-time buyer applications only"}]',
   'c',
@@ -254,7 +254,7 @@ VALUES (
 
 INSERT INTO quiz_questions (module_id, question, options, correct_option_id, explanation, sort_order)
 VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'Which of the following is NOT one of the 3 Identities of a High-Trust Consultant?',
   '[{"id":"a","text":"The Educator"},{"id":"b","text":"The Bridge Builder"},{"id":"c","text":"The Deal Closer"},{"id":"d","text":"The Business Partner"}]',
   'c',
@@ -264,7 +264,7 @@ VALUES (
 
 INSERT INTO quiz_questions (module_id, question, options, correct_option_id, explanation, sort_order)
 VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'What is the morning question Shawn Mackrell recommends every consultant ask themselves daily?',
   '[{"id":"a","text":"How many deals can I close this week?"},{"id":"b","text":"What can I do today that would make a practitioner think I genuinely care about their business?"},{"id":"c","text":"Which bank is offering the best rate today?"},{"id":"d","text":"How many calls do I need to make to hit my target?"}]',
   'b',
@@ -274,7 +274,7 @@ VALUES (
 
 INSERT INTO quiz_questions (module_id, question, options, correct_option_id, explanation, sort_order)
 VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'How many attributes of a top consultant does the module outline?',
   '[{"id":"a","text":"5"},{"id":"b","text":"6"},{"id":"c","text":"7"},{"id":"d","text":"10"}]',
   'c',
@@ -284,7 +284,7 @@ VALUES (
 
 INSERT INTO quiz_questions (module_id, question, options, correct_option_id, explanation, sort_order)
 VALUES (
-  'mod-00000000-0000-0000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001',
   'Which attribute means "spotting delays before they cause frustration and guiding the process forward without being asked"?',
   '[{"id":"a","text":"Reliability"},{"id":"b","text":"Speed"},{"id":"c","text":"Proactivity"},{"id":"d","text":"Curiosity"}]',
   'c',

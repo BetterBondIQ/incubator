@@ -24,11 +24,6 @@ export function ProfileScreen() {
   const streak = profile?.streak_current ?? 0
   const streakBest = profile?.streak_best ?? 0
 
-  useEffect(() => {
-    if (!profile?.id) return
-    loadAchievementData()
-  }, [profile?.id])
-
   async function loadAchievementData() {
     const [progRes, lbRes, modsRes] = await Promise.all([
       supabase.from('user_progress').select('type,module_id').eq('user_id', profile.id),
@@ -42,6 +37,14 @@ export function ProfileScreen() {
     }
     if (modsRes.data) setModuleCount(modsRes.data.length)
   }
+
+  useEffect(() => {
+    if (!profile?.id) return
+    // Existing profile pattern: fetch achievement data when the user changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadAchievementData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   function isUnlocked(achId) {
     switch (achId) {

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '../../store/useAuthStore'
 import { usePointsStore } from '../../store/usePointsStore'
 import { supabase } from '../../lib/supabase'
-import { getTier, getProgressToNextTier } from '../../lib/constants'
+import { getTier } from '../../lib/constants'
 import { ProgressBar } from '../../components/ui/ProgressBar'
 
 const fadeUp = (delay = 0) => ({
@@ -19,6 +19,7 @@ export function HomeScreen() {
   const navigate = useNavigate()
 
   const [modules, setModules] = useState([])
+  const [lessonCounts, setLessonCounts] = useState({})
   const [progress, setProgress] = useState([])
   const [leaderboard, setLeaderboard] = useState([])
   const [dailyQuestion, setDailyQuestion] = useState(null)
@@ -31,22 +32,24 @@ export function HomeScreen() {
   const streak = profile?.streak_current ?? 0
   const anyLessonsStarted = progress.some(p => p.type === 'lesson_complete')
 
-  useEffect(() => {
-    if (!profile?.id) return
-    loadData()
-  }, [profile?.id])
-
   async function loadData() {
     setLoading(true)
     setError(null)
     try {
-      const [modsRes, progressRes, lbRes, quizRes] = await Promise.all([
+      const [modsRes, lessonsRes, progressRes, lbRes, quizRes] = await Promise.all([
         supabase.from('modules').select('*').eq('is_active', true).order('sort_order').limit(4),
+        supabase.from('lessons').select('module_id'),
         supabase.from('user_progress').select('module_id,type').eq('user_id', profile.id),
         supabase.from('users').select('id,full_name,total_points,monthly_points').order('total_points', { ascending: false }).limit(5),
         supabase.from('quiz_questions').select('*').eq('module_id', null).limit(1),
       ])
       if (modsRes.data) setModules(modsRes.data)
+      if (lessonsRes.data) {
+        setLessonCounts(lessonsRes.data.reduce((counts, lesson) => {
+          counts[lesson.module_id] = (counts[lesson.module_id] ?? 0) + 1
+          return counts
+        }, {}))
+      }
       if (progressRes.data) setProgress(progressRes.data)
       if (lbRes.data) setLeaderboard(lbRes.data)
       if (quizRes.data?.length) setDailyQuestion(quizRes.data[0])
@@ -56,6 +59,14 @@ export function HomeScreen() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!profile?.id) return
+    // Existing dashboard pattern: load remote data when the signed-in user changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   function getModuleProgress(moduleId) {
     return progress.filter(p => p.module_id === moduleId && p.type === 'lesson_complete').length
@@ -79,7 +90,10 @@ export function HomeScreen() {
 
   const myRank = leaderboard.findIndex(u => u.id === profile?.id) + 1
   const overallLessons = progress.filter(p => p.type === 'lesson_complete').length
-  const totalLessons = Math.max(1, modules.length * 4)
+  const totalLessons = Math.max(
+    1,
+    modules.reduce((total, mod) => total + (lessonCounts[mod.id] ?? mod.lesson_count ?? 4), 0),
+  )
   const overallPct = Math.min(100, Math.round((overallLessons / totalLessons) * 100))
 
   const displayModules = modules.length ? modules : PLACEHOLDER_MODULES
@@ -156,7 +170,8 @@ export function HomeScreen() {
             {displayModules.slice(0, 4).map((mod, idx) => {
               const done = isModuleComplete(mod.id ?? mod.slug)
               const completed = getModuleProgress(mod.id ?? mod.slug)
-              const pct = Math.round((completed / 4) * 100)
+              const totalModuleLessons = lessonCounts[mod.id] ?? mod.lesson_count ?? 4
+              const pct = Math.round((completed / totalModuleLessons) * 100)
               return (
                 <motion.div
                   key={mod.id ?? mod.slug}
@@ -172,7 +187,7 @@ export function HomeScreen() {
                   )}
                   <span style={{ fontSize: 22, marginBottom: 8, display: 'block' }}>{mod.icon ?? '📋'}</span>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--bb-navy)', marginBottom: 3, lineHeight: 1.3 }}>{mod.title}</p>
-                  <p style={{ fontSize: 11, color: 'var(--bb-grey-400)', marginBottom: 8 }}>{done ? 'Completed' : `${completed}/4 lessons`}</p>
+                  <p style={{ fontSize: 11, color: 'var(--bb-grey-400)', marginBottom: 8 }}>{done ? 'Completed' : `${completed}/${totalModuleLessons} lessons`}</p>
                   <ProgressBar value={pct} height={4} completed={done} delay={0.3 + idx * 0.08} />
                 </motion.div>
               )
@@ -183,7 +198,8 @@ export function HomeScreen() {
             const mod = displayModules[4]
             const done = isModuleComplete(mod.id ?? mod.slug)
             const completed = getModuleProgress(mod.id ?? mod.slug)
-            const pct = Math.round((completed / 4) * 100)
+            const totalModuleLessons = lessonCounts[mod.id] ?? mod.lesson_count ?? 4
+            const pct = Math.round((completed / totalModuleLessons) * 100)
             return (
               <motion.div
                 {...fadeUp(0.32)}
@@ -198,7 +214,7 @@ export function HomeScreen() {
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--bb-navy)', marginBottom: 2 }}>{mod.title}</p>
                   <ProgressBar value={pct} height={4} completed={done} delay={0.35} />
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--bb-grey-400)', flexShrink: 0 }}>{done ? '✓' : `${completed}/4`}</span>
+                <span style={{ fontSize: 11, color: 'var(--bb-grey-400)', flexShrink: 0 }}>{done ? '✓' : `${completed}/${totalModuleLessons}`}</span>
               </motion.div>
             )
           })()}
