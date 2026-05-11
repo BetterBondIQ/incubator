@@ -8,13 +8,13 @@ export function OTPScreen() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resendCooldown, setResendCooldown] = useState(60)
-  const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
+  const refs = useRef([])
   const navigate = useNavigate()
   const { state } = useLocation()
   const email = state?.email ?? ''
 
   useEffect(() => {
-    refs[0].current?.focus()
+    refs.current[0]?.focus()
     const interval = setInterval(() => {
       setResendCooldown(c => c > 0 ? c - 1 : 0)
     }, 1000)
@@ -33,7 +33,7 @@ export function OTPScreen() {
     if (err) {
       setError('Invalid or expired code. Try again.')
       setDigits(['', '', '', '', '', ''])
-      refs[0].current?.focus()
+      refs.current[0]?.focus()
     }
     // On success App.jsx onAuthStateChange will redirect automatically
   }
@@ -44,7 +44,7 @@ export function OTPScreen() {
     next[idx] = cleaned
     setDigits(next)
 
-    if (cleaned && idx < 5) refs[idx + 1].current?.focus()
+    if (cleaned && idx < 5) refs.current[idx + 1]?.focus()
 
     const code = next.join('')
     if (code.length === 6) verify(code)
@@ -52,7 +52,7 @@ export function OTPScreen() {
 
   function handleKeyDown(idx, e) {
     if (e.key === 'Backspace' && !digits[idx] && idx > 0) {
-      refs[idx - 1].current?.focus()
+      refs.current[idx - 1]?.focus()
     }
   }
 
@@ -62,7 +62,7 @@ export function OTPScreen() {
     setResendCooldown(60)
     setError('')
     setDigits(['', '', '', '', '', ''])
-    refs[0].current?.focus()
+    refs.current[0]?.focus()
   }
 
   return (
@@ -95,7 +95,7 @@ export function OTPScreen() {
           {digits.map((d, i) => (
             <input
               key={i}
-              ref={refs[i]}
+              ref={el => { refs.current[i] = el }}
               type="text"
               inputMode="numeric"
               maxLength={1}

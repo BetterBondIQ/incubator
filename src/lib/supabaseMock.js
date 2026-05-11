@@ -6,13 +6,35 @@ import {
   MOCK_PROGRESS,
   MOCK_QUIZ_QUESTIONS,
 } from './mockData'
+import {
+  CONSULTANT_MINDSET_MODULE,
+  CONSULTANT_MINDSET_LESSONS,
+  CONSULTANT_MINDSET_QUIZ_QUESTIONS,
+} from './consultantMindsetData'
+
+const DEMO_MODULES = [
+  CONSULTANT_MINDSET_MODULE,
+  ...MOCK_MODULES.filter(module => module.id !== CONSULTANT_MINDSET_MODULE.id),
+]
+
+const DEMO_LESSONS = [
+  ...CONSULTANT_MINDSET_LESSONS,
+  ...MOCK_LESSONS.filter(lesson => lesson.module_id !== CONSULTANT_MINDSET_MODULE.id),
+]
+
+const DEMO_QUIZ_QUESTIONS = [
+  ...CONSULTANT_MINDSET_QUIZ_QUESTIONS,
+  ...MOCK_QUIZ_QUESTIONS.filter(question => question.module_id !== CONSULTANT_MINDSET_MODULE.id),
+]
+
+const DEMO_PROGRESS = MOCK_PROGRESS.filter(progress => progress.module_id !== CONSULTANT_MINDSET_MODULE.id)
 
 const TABLES = {
   users: MOCK_USERS,
-  modules: MOCK_MODULES,
-  lessons: MOCK_LESSONS,
-  user_progress: MOCK_PROGRESS,
-  quiz_questions: MOCK_QUIZ_QUESTIONS,
+  modules: DEMO_MODULES,
+  lessons: DEMO_LESSONS,
+  user_progress: DEMO_PROGRESS,
+  quiz_questions: DEMO_QUIZ_QUESTIONS,
   point_events: [],
 }
 
@@ -90,7 +112,7 @@ class MockQueryBuilder {
 
 // Daily quiz rotates by day-of-year so it changes each day
 function getDailyQuestion() {
-  const dailyQuestions = MOCK_QUIZ_QUESTIONS.filter(q => q.module_id === null)
+  const dailyQuestions = DEMO_QUIZ_QUESTIONS.filter(q => q.module_id === null)
   if (!dailyQuestions.length) return []
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
   const idx = dayOfYear % dailyQuestions.length
@@ -107,8 +129,8 @@ export const mockSupabase = {
     // Daily quiz uses the rotating selection
     if (table === 'quiz_questions') {
       return {
-        _allData: MOCK_QUIZ_QUESTIONS,
-        _data: MOCK_QUIZ_QUESTIONS,
+        _allData: DEMO_QUIZ_QUESTIONS,
+        _data: DEMO_QUIZ_QUESTIONS,
         select() { return this },
         eq(col, val) {
           if (val === null) {

@@ -16,10 +16,6 @@ export function LessonView() {
   const [completed, setCompleted] = useState(false)
   const [marking, setMarking] = useState(false)
 
-  useEffect(() => {
-    loadLesson()
-  }, [lessonId])
-
   async function loadLesson() {
     const [lessonRes, allRes, progressRes] = await Promise.all([
       supabase.from('lessons').select('*').eq('id', lessonId).single(),
@@ -32,6 +28,13 @@ export function LessonView() {
     if (allRes.data) setAllLessons(allRes.data)
     if (progressRes.data) setCompleted(true)
   }
+
+  useEffect(() => {
+    // Existing lesson screen pattern: fetch lesson data when the route changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadLesson()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonId])
 
   async function handleMarkComplete() {
     if (completed || marking || !profile?.id) return

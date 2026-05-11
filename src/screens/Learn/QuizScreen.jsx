@@ -18,10 +18,6 @@ export function QuizScreen() {
   const [done, setDone] = useState(false)
   const [alreadyPassed, setAlreadyPassed] = useState(false)
 
-  useEffect(() => {
-    loadQuiz()
-  }, [moduleId, profile?.id])
-
   async function loadQuiz() {
     const [qRes, passedRes] = await Promise.all([
       supabase.from('quiz_questions').select('*').eq('module_id', moduleId).order('sort_order'),
@@ -32,6 +28,13 @@ export function QuizScreen() {
     if (qRes.data) setQuestions(qRes.data)
     if (passedRes.data) setAlreadyPassed(true)
   }
+
+  useEffect(() => {
+    // Existing quiz screen pattern: fetch quiz data when the route/user changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadQuiz()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleId, profile?.id])
 
   function handleSelect(optionId) {
     if (selected !== null) return

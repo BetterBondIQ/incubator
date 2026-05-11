@@ -30,6 +30,21 @@ export default function App() {
   const { setSession, setUser, setProfile, setLoading } = useAuthStore()
   const { setPoints } = usePointsStore()
 
+  async function loadProfile(userId) {
+    try {
+      await supabase.rpc('update_login_streak', { p_user_id: userId })
+      const { data } = await supabase.from('users').select('*').eq('id', userId).single()
+      if (data) {
+        setProfile(data)
+        setPoints(data.total_points ?? 0, data.monthly_points ?? 0)
+      }
+    } catch {
+      // Profile load failure should not block the app
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (DEMO) {
       const demoUser = MOCK_USERS[0]
@@ -58,22 +73,9 @@ export default function App() {
     })
 
     return () => subscription.unsubscribe()
+    // Existing auth bootstrap intentionally runs once at app start.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  async function loadProfile(userId) {
-    try {
-      await supabase.rpc('update_login_streak', { p_user_id: userId })
-      const { data } = await supabase.from('users').select('*').eq('id', userId).single()
-      if (data) {
-        setProfile(data)
-        setPoints(data.total_points ?? 0, data.monthly_points ?? 0)
-      }
-    } catch {
-      // Profile load failure should not block the app
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <BrowserRouter>

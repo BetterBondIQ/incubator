@@ -13,25 +13,36 @@ export function LearnScreen() {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('All')
   const [modules, setModules] = useState([])
+  const [lessonCounts, setLessonCounts] = useState({})
   const [progress, setProgress] = useState([])
   const [seriesOpen, setSeriesOpen] = useState(true)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (!profile?.id) return
-    loadModules()
-  }, [profile?.id])
-
   async function loadModules() {
     setLoading(true)
-    const [modsRes, progRes] = await Promise.all([
+    const [modsRes, lessonsRes, progRes] = await Promise.all([
       supabase.from('modules').select('*').eq('is_active', true).order('sort_order'),
+      supabase.from('lessons').select('module_id'),
       supabase.from('user_progress').select('module_id,lesson_id,type').eq('user_id', profile.id),
     ])
     if (modsRes.data) setModules(modsRes.data)
+    if (lessonsRes.data) {
+      setLessonCounts(lessonsRes.data.reduce((counts, lesson) => {
+        counts[lesson.module_id] = (counts[lesson.module_id] ?? 0) + 1
+        return counts
+      }, {}))
+    }
     if (progRes.data) setProgress(progRes.data)
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (!profile?.id) return
+    // Existing screen pattern: load remote module data when the signed-in user changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadModules()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   function getLessonCount(moduleId) {
     return progress.filter(p => p.module_id === moduleId && p.type === 'lesson_complete').length
@@ -116,7 +127,8 @@ export function LearnScreen() {
           const completed = getLessonCount(mod.id)
           const done = isComplete(mod.id)
           const fresh = isNew(mod)
-          const pct = done ? 100 : Math.round((completed / 4) * 100)
+          const totalLessons = lessonCounts[mod.id] ?? mod.lesson_count ?? 4
+          const pct = done ? 100 : Math.round((completed / totalLessons) * 100)
 
           return (
             <div
@@ -150,7 +162,7 @@ export function LearnScreen() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--bb-grey-400)' }}>
-                    {done ? '✓ Complete' : `${completed}/4 lessons`}
+                    {done ? '✓ Complete' : `${completed}/${totalLessons} lessons`}
                   </span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--bb-red)', fontWeight: 700 }}>
                     +{mod.points_completion ?? 50} pts

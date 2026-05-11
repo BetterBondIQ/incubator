@@ -18,24 +18,6 @@ export function RankScreen() {
   const tier = getTier(totalPoints)
   const { pct, needed, next } = getProgressToNextTier(totalPoints)
 
-  // Reload data whenever tab or profile changes
-  useEffect(() => {
-    if (!profile?.id) return
-    loadLeaderboard()
-  }, [tab, profile?.id])
-
-  // Realtime subscription — created once per profile session, not per tab change
-  useEffect(() => {
-    if (!profile?.id) return
-    const channel = supabase
-      .channel('leaderboard')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users' }, () => {
-        loadLeaderboard(tabRef.current)
-      })
-      .subscribe()
-    return () => supabase.removeChannel(channel)
-  }, [profile?.id])
-
   async function loadLeaderboard(currentTab) {
     const resolvedTab = currentTab ?? tabRef.current
     const scoreCol = resolvedTab === 'Monthly' ? 'monthly_points' : 'total_points'
@@ -53,6 +35,26 @@ export function RankScreen() {
     if (data) setLeaderboard(data)
   }
 
+  useEffect(() => {
+    if (!profile?.id) return
+    loadLeaderboard()
+    // Existing rank screen pattern: fetch leaderboard data when tab/user changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, profile?.id])
+
+  useEffect(() => {
+    if (!profile?.id) return
+    const channel = supabase
+      .channel('leaderboard')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users' }, () => {
+        loadLeaderboard(tabRef.current)
+      })
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+    // Existing realtime subscription intentionally depends on profile only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
+
   const rankColors = ['#D4AF37', '#A8A9AD', '#CD7F32']
   const rankEmojis = ['🥇', '🥈', '🥉']
   const scoreCol = tab === 'Monthly' ? 'monthly_points' : 'total_points'
@@ -60,15 +62,13 @@ export function RankScreen() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-      {/* Header */}
       <div style={{ background: 'var(--bb-navy-dark)', padding: '16px 20px 20px', flexShrink: 0 }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: '#fff', marginBottom: 4 }}>
           <em style={{ color: '#8FAEE8' }}>Rank</em> Board
         </h1>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Live rankings — updated in real time</p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Live rankings - updated in real time</p>
       </div>
 
-      {/* My Rank Card */}
       <div style={{
         background: 'var(--bb-navy)', margin: '16px 16px 0', borderRadius: 18,
         padding: 20, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0,
@@ -104,7 +104,6 @@ export function RankScreen() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', background: '#fff', borderBottom: '1px solid var(--bb-grey-200)', padding: '0 16px', flexShrink: 0 }}>
         {TABS.map(t => (
           <button
@@ -123,7 +122,6 @@ export function RankScreen() {
         ))}
       </div>
 
-      {/* Leaderboard */}
       <div className="scroll-hide" style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 16px' }}>
         {leaderboard.map((user, i) => {
           const isMe = user.id === profile?.id
@@ -162,7 +160,6 @@ export function RankScreen() {
           )
         })}
 
-        {/* Rank Tier Legend */}
         <div style={{ marginTop: 16, background: '#fff', border: '1px solid var(--bb-grey-200)', borderRadius: 14, padding: '14px 16px', boxShadow: 'var(--bb-shadow-card)' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--bb-grey-400)', marginBottom: 12, fontFamily: 'var(--font-mono)' }}>
             Rank Tiers
@@ -172,7 +169,7 @@ export function RankScreen() {
               <span style={{ fontSize: 18 }}>{t.emoji}</span>
               <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--bb-navy)' }}>{t.name}</span>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--bb-grey-400)' }}>
-                {t.max === Infinity ? `${t.min.toLocaleString()}+` : `${t.min.toLocaleString()} – ${t.max.toLocaleString()}`} pts
+                {t.max === Infinity ? `${t.min.toLocaleString()}+` : `${t.min.toLocaleString()} - ${t.max.toLocaleString()}`} pts
               </span>
             </div>
           ))}
