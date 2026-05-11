@@ -1,6 +1,7 @@
 {
   "env": {
-    "VITE_DEMO_MODE": "true"
+    "VITE_DEMO_MODE": "true",
+    "VITE_USE_LIVE_SUPABASE": "false"
   },
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
