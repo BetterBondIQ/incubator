@@ -66,6 +66,21 @@ export function LearnScreen() {
     })
   }
 
+  const consultantMindsetModule = modules.find(m =>
+    m.slug === 'the-consultant-mindset' ||
+    m.slug === 'consultant-mindset' ||
+    m.title === 'The Consultant Mindset'
+  )
+  const unlockedCoachingCount = consultantMindsetModule ? 1 : 0
+  const seriesProgressPercent = Math.round((unlockedCoachingCount / COACHING_MODULES.length) * 100)
+  const consultantMindsetCompleted = consultantMindsetModule ? getLessonCount(consultantMindsetModule.id) : 0
+  const consultantMindsetTotal = consultantMindsetModule
+    ? lessonCounts[consultantMindsetModule.id] ?? consultantMindsetModule.lesson_count ?? 7
+    : 0
+  const consultantMindsetProgress = consultantMindsetTotal > 0
+    ? Math.round((consultantMindsetCompleted / consultantMindsetTotal) * 100)
+    : 0
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {/* Header */}
@@ -268,27 +283,41 @@ export function LearnScreen() {
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 120, height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 999 }}>
-                      <div style={{ width: '0%', height: '100%', background: 'linear-gradient(90deg, var(--bb-navy), var(--bb-red))', borderRadius: 999 }} />
+                      <div style={{ width: `${seriesProgressPercent}%`, height: '100%', background: 'linear-gradient(90deg, var(--bb-navy), var(--bb-red))', borderRadius: 999 }} />
                     </div>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
-                      0 / 12 sessions
+                      {unlockedCoachingCount} / {COACHING_MODULES.length} sessions
                     </span>
                   </div>
                 </div>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700,
-                  background: 'rgba(229,48,42,0.18)', color: 'var(--bb-red)',
+                  background: unlockedCoachingCount > 0 ? 'rgba(143,174,232,0.18)' : 'rgba(229,48,42,0.18)',
+                  color: unlockedCoachingCount > 0 ? '#8FAEE8' : 'var(--bb-red)',
                   padding: '4px 10px', borderRadius: 999, letterSpacing: 1,
                 }}>
-                  🔒 ALL LOCKED
+                  {unlockedCoachingCount > 0 ? '1 UNLOCKED' : 'ALL LOCKED'}
                 </span>
               </div>
             )}
 
             {/* Module flip cards */}
-            {seriesOpen && COACHING_MODULES.map((mod, i) => (
-              <LockedModuleCard key={mod.id} module={mod} index={i} />
-            ))}
+            {seriesOpen && COACHING_MODULES.map((mod, i) => {
+              const isConsultantMindsetCard = mod.number === 1 && consultantMindsetModule
+
+              return (
+                <LockedModuleCard
+                  key={mod.id}
+                  module={mod}
+                  index={i}
+                  unlocked={Boolean(isConsultantMindsetCard)}
+                  completedLessons={isConsultantMindsetCard ? consultantMindsetCompleted : 0}
+                  totalLessons={isConsultantMindsetCard ? consultantMindsetTotal : 0}
+                  progressPercent={isConsultantMindsetCard ? consultantMindsetProgress : 0}
+                  onOpen={() => navigate(`/learn/${consultantMindsetModule.id}`)}
+                />
+              )
+            })}
           </div>
         )}
 
