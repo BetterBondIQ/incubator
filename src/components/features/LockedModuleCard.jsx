@@ -1,18 +1,139 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Lock } from 'lucide-react'
+import { ChevronRight, Lock, PlayCircle } from 'lucide-react'
 
 const CARD_HEIGHT = 188
 
-export function LockedModuleCard({ module, index = 0 }) {
+export function LockedModuleCard({
+  module,
+  index = 0,
+  unlocked = false,
+  completedLessons = 0,
+  totalLessons = 0,
+  progressPercent = 0,
+  onOpen,
+}) {
   const [flipped, setFlipped] = useState(false)
+  const boundedProgress = Math.max(0, Math.min(progressPercent, 100))
+  const hasStarted = completedLessons > 0
+
+  function handleCardClick() {
+    if (unlocked) {
+      onOpen?.()
+      return
+    }
+    setFlipped(f => !f)
+  }
+
+  function handleKeyDown(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    handleCardClick()
+  }
+
+  if (unlocked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        role="button"
+        tabIndex={0}
+        onClick={handleCardClick}
+        onKeyDown={handleKeyDown}
+        whileTap={{ scale: 0.985 }}
+        style={{
+          minHeight: CARD_HEIGHT,
+          cursor: 'pointer',
+          marginBottom: 10,
+          background: '#fff',
+          border: '1px solid rgba(12, 32, 66, 0.1)',
+          borderLeft: '4px solid var(--bb-red)',
+          borderRadius: 16,
+          padding: '16px 18px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          boxShadow: 'var(--bb-shadow-card)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700,
+            background: 'var(--bb-navy-light)', color: 'var(--bb-navy)',
+            padding: '3px 10px', borderRadius: 999, letterSpacing: 1.5,
+          }}>
+            MODULE {module.number}
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700,
+            background: 'var(--bb-red-light)', color: 'var(--bb-red)',
+            padding: '3px 10px', borderRadius: 999, letterSpacing: 1.2,
+            display: 'flex', alignItems: 'center', gap: 5,
+            whiteSpace: 'nowrap',
+          }}>
+            <PlayCircle size={10} /> {hasStarted ? 'CONTINUE' : 'UNLOCKED'}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 15, flexShrink: 0,
+            background: 'linear-gradient(135deg, var(--bb-navy), var(--bb-red))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 10px 24px rgba(12, 32, 66, 0.18)',
+          }}>
+            <PlayCircle size={24} color="#fff" strokeWidth={2.2} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{
+              fontSize: 15, fontWeight: 800, color: 'var(--bb-navy)',
+              lineHeight: 1.3, marginBottom: 4,
+              fontFamily: 'var(--font-body)',
+            }}>
+              {module.title}
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--bb-grey-500)', lineHeight: 1.45 }}>
+              {module.teaser}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div style={{ height: 5, background: 'var(--bb-grey-100)', borderRadius: 999, overflow: 'hidden', marginBottom: 7 }}>
+            <div style={{
+              height: '100%',
+              width: `${boundedProgress}%`,
+              background: 'linear-gradient(90deg, var(--bb-navy), var(--bb-red))',
+              borderRadius: 999,
+              transition: 'width 0.6s ease',
+            }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--bb-grey-400)' }}>
+              {completedLessons}/{totalLessons} lessons
+            </span>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--bb-navy)',
+              fontWeight: 800, display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              {hasStarted ? 'Continue course' : 'Start course'} <ChevronRight size={12} />
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      onClick={() => setFlipped(f => !f)}
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       style={{ height: CARD_HEIGHT, perspective: '900px', cursor: 'pointer', marginBottom: 10 }}
     >
       <motion.div
